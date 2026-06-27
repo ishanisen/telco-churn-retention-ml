@@ -25,3 +25,28 @@ The following engineered features were created to better capture customer lifecy
 | `has_security_support` | Binary | Indicates whether the customer has either `OnlineSecurity` or `TechSupport`. | Security and support services may reflect stronger engagement and lower churn risk. |
 | `charges_per_tenure` | Numerical | Approximates billing intensity by dividing `TotalCharges` by `tenure + 1`. | Captures the relationship between billing history and customer age. |
 | `high_monthly_charges` | Binary | Flags customers whose monthly charges are above the dataset median. | Higher monthly charges can be associated with churn in telecom datasets. |
+
+## Model Evaluation
+
+Three models were trained and compared on the processed data: Logistic Regression, Random Forest, and XGBoost. Each model was evaluated using precision, recall, F1 score, ROC-AUC, PR-AUC, and the confusion matrix so that performance could be interpreted in a way that is more useful for churn prediction than accuracy alone.
+
+Because churn is the minority class, recall and precision-recall balance are especially important when deciding which customers to target for retention. XGBoost performed best overall after threshold tuning, giving the strongest balance between false positives and false negatives.
+
+## Threshold Analysis
+
+To better understand the tradeoff between false positives and false negatives, the XGBoost model was tested at multiple probability thresholds. Lower thresholds increased recall and reduced false negatives, while higher thresholds increased precision and reduced false positives.
+
+Based on validation results, a threshold of `0.4` produced the best overall balance for this project.
+
+| Threshold | False Positives | False Negatives | Precision | Recall | F1 |
+|---|---:|---:|---:|---:|---:|
+| 0.3 | 136 | 45 | 0.511 | 0.759 | 0.611 |
+| 0.4 | 94 | 58 | 0.578 | 0.690 | 0.629 |
+| 0.5 | 61 | 84 | 0.628 | 0.551 | 0.587 |
+| 0.6 | 26 | 112 | 0.743 | 0.401 | 0.521 |
+
+## Results
+
+The final selected model for this project is XGBoost with a threshold of `0.4`. This setting gave the best balance between identifying likely churners and limiting unnecessary retention outreach.
+
+A lower threshold would catch more churners but increase false alarms, while a higher threshold would reduce false alarms but miss more customers who are likely to leave. This threshold therefore provides a practical balance for retention-focused decision-making.
