@@ -31,34 +31,43 @@ def clean_data(df):
 
 def build_preprocessor():
     """Build ColumnTransformer for numerical imputation, categorical imputation, one-hot encoding, scaling"""
-    
-    # Identify column types
-    numeric_features = ['tenure', 'MonthlyCharges', 'TotalCharges']
+
+    numeric_features = [
+        'tenure',
+        'MonthlyCharges',
+        'TotalCharges',
+        'service_count',
+        'charges_per_tenure',
+        'is_month_to_month',
+        'is_long_contract',
+        'uses_electronic_check',
+        'has_security_support',
+        'high_monthly_charges',
+        'SeniorCitizen'
+    ]
+
     categorical_features = [
         'gender', 'Partner', 'Dependents', 'PhoneService', 'PaperlessBilling',
         'MultipleLines', 'OnlineSecurity', 'OnlineBackup', 'DeviceProtection',
         'TechSupport', 'StreamingTV', 'StreamingMovies',
-        'Contract', 'PaymentMethod', 'InternetService','SeniorCitizen'
+        'Contract', 'PaymentMethod', 'InternetService', 'tenure_bucket'
     ]
-    
-    # Numerical pipeline: imputation + scaling
+
     numeric_pipeline = Pipeline([
         ('imputer', SimpleImputer(strategy='mean')),
         ('scaler', StandardScaler())
     ])
-    
-    # Categorical pipeline: imputation + one-hot encoding
+
     categorical_pipeline = Pipeline([
         ('imputer', SimpleImputer(strategy='most_frequent')),
         ('encoder', OneHotEncoder(handle_unknown='ignore'))
     ])
-    
-    # Combine in ColumnTransformer
+
     preprocessor = ColumnTransformer([
         ('num', numeric_pipeline, numeric_features),
         ('cat', categorical_pipeline, categorical_features)
     ])
-    
+
     return preprocessor
 
 
@@ -69,7 +78,7 @@ def split_data(df, target_col='Churn'):
     
     # First split: 80% train, 20% val+test
     X_train, X_val_test, y_train, y_val_test = train_test_split(
-        X, y, test_size=0.2, random_state=42, stratify=y  # ✅ stratify=y
+        X, y, test_size=0.2, random_state=42, stratify=y  
     )
     
     # Second split: 50/50 → 10% val, 10% test
