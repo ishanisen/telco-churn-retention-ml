@@ -11,7 +11,8 @@ from sklearn.metrics import (
     roc_auc_score,
     average_precision_score
 )
-
+from pathlib import Path
+import joblib
 
 def evaluate_model(model_name, y_true, y_pred, y_proba):
     print(f"\n=== {model_name} VALIDATION RESULTS ===")
@@ -190,3 +191,14 @@ all_threshold_results = pd.concat(
 
 all_threshold_results.to_csv("threshold_results.csv", index=False)
 print("\nSaved threshold results to threshold_results.csv")
+
+models_dir = Path("models")
+models_dir.mkdir(exist_ok=True)
+
+joblib.dump(preprocessor, models_dir / "preprocessor.pkl")
+joblib.dump(xgb_model, models_dir / "xgboost_churn_model.pkl")
+joblib.dump({"threshold": 0.4}, models_dir / "model_config.pkl")
+
+print("Saved preprocessor to models/preprocessor.pkl")
+print("Saved final model to models/xgboost_churn_model.pkl")
+print("Saved model config to models/model_config.pkl")
