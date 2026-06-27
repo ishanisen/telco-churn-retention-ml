@@ -1,11 +1,13 @@
 from preprocess import load_data, clean_data, split_data, build_preprocessor
 from features import create_features
+
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
+from xgboost import XGBClassifier
 from sklearn.metrics import (
-    classification_report,
     confusion_matrix,
+    classification_report,
     roc_auc_score,
     average_precision_score
 )
@@ -23,8 +25,9 @@ def evaluate_model(model_name, y_true, y_pred, y_proba):
     print("PR-AUC:", average_precision_score(y_true, y_proba))
 
 
-def apply_threshold(proba, threshold):
-    return (proba >= threshold).astype(int)
+def apply_threshold(y_proba, threshold):
+    return (y_proba >= threshold).astype(int)
+
 
 def evaluate_thresholds(model_name, y_true, y_proba, thresholds=[0.3, 0.4, 0.5, 0.6]):
     rows = []
@@ -57,6 +60,7 @@ def evaluate_thresholds(model_name, y_true, y_proba, thresholds=[0.3, 0.4, 0.5, 
     results = pd.DataFrame(rows)
     print(results.to_string(index=False))
     return results
+
 
 print("=== LOADING DATA ===")
 df = load_data("data/raw/telco_churn.csv")
@@ -93,9 +97,12 @@ preprocessor = build_preprocessor()
 print("\n=== TRANSFORMING DATA ===")
 X_train_processed = preprocessor.fit_transform(X_train)
 X_val_processed = preprocessor.transform(X_val)
+X_test_processed = preprocessor.transform(X_test)
 print("Processed X_train shape:", X_train_processed.shape)
 print("Processed X_val shape:", X_val_processed.shape)
+print("Processed X_test shape:", X_test_processed.shape)
 
+# ---------------- LOGISTIC REGRESSION ----------------
 print("\n=== TRAINING LOGISTIC REGRESSION ===")
 log_model = LogisticRegression(max_iter=1000, class_weight="balanced")
 log_model.fit(X_train_processed, y_train)
@@ -111,6 +118,13 @@ evaluate_model(
     y_proba=log_y_val_proba
 )
 
+log_threshold_results = evaluate_thresholds(
+    model_name="Logistic Regression",
+    y_true=y_val,
+    y_proba=log_y_val_proba
+)
+
+# ---------------- RANDOM FOREST ----------------
 print("\n=== TRAINING RANDOM FOREST ===")
 rf_model = RandomForestClassifier(
     n_estimators=200,
@@ -130,8 +144,49 @@ evaluate_model(
     y_proba=rf_y_val_proba
 )
 
-log_y_val_proba = log_model.predict_proba(X_val_processed)[:, 1]
-rf_y_val_proba = rf_model.predict_proba(X_val_processed)[:, 1]
+rf_threshold_results = evaluate_thresholds(
+    model_name="Random Forest",
+    y_true=y_val,
+    y_proba=rf_y_val_proba
+)
 
-log_threshold_results = evaluate_thresholds("Logistic Regression", y_val, log_y_val_proba)
-rf_threshold_results = evaluate_thresholds("Random Forest", y_val, rf_y_val_proba)
+# ---------------- XGBOOST ----------------
+print("\n=== TRAINING XGBOOST ===")
+xgb_model = XGBClassifier(
+    objective="binary:logistic",
+    n_estimators=300,
+    learning_rate=0.05,
+    max_depth=4,
+    subsample=0.8,
+    colsample_bytree=0.8,
+    random_state=42,
+    n_jobs=-1,
+    eval_metric="logloss"
+)
+xgb_model.fit(X_train_processed, y_train)
+print("XGBoost trained successfully.")
+
+xgb_y_val_pred = xgb_model.predict(X_val_processed)
+xgb_y_val_proba = xgb_model.predict_proba(X_val_processed)[:, 1]
+
+evaluate_model(
+    model_name="XGBOOST",
+    y_true=y_val,
+    y_pred=xgb_y_val_pred,
+    y_proba=xgb_y_val_proba
+)
+
+xgb_threshold_results = evaluate_thresholds(
+    model_name="XGBoost",
+    y_true=y_val,
+    y_proba=xgb_y_val_proba
+)
+
+# ---------------- SAVE THRESHOLD RESULTS ----------------
+all_threshold_results = pd.concat(
+    [log_threshold_results, rf_threshold_results, xgb_threshold_results],
+    ignore_index=True
+)
+
+all_threshold_results.to_csv("threshold_results.csv", index=False)
+print("\nSaved threshold results to threshold_results.csv")
