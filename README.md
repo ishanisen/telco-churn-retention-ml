@@ -130,7 +130,9 @@ This app demonstrates how the trained model can be turned into a simple decision
 ## Screenshots
 
 ### Streamlit App
-![Streamlit app screenshot](images/app_screenshot.png)
+
+<img width="1420" height="590" alt="image" src="https://github.com/user-attachments/assets/96d10466-f9f2-417d-91d1-55d6bb8c39f9" />
+
 
 ### SHAP Summary Plot
 ![SHAP summary plot](reports/shap_summary_plot.png)
