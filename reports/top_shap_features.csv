@@ -1,0 +1,51 @@
+feature,mean_abs_shap
+num__is_month_to_month,0.7486807
+num__tenure,0.37643167
+num__MonthlyCharges,0.25211275
+cat__InternetService_Fiber optic,0.24660337
+num__TotalCharges,0.18864432
+num__uses_electronic_check,0.1589615
+num__charges_per_tenure,0.15610759
+num__has_security_support,0.15210986
+cat__MultipleLines_No,0.11597894
+cat__PaperlessBilling_No,0.11218462
+cat__Contract_Two year,0.10735823
+cat__Contract_One year,0.09636461
+cat__StreamingMovies_No,0.083875604
+cat__InternetService_No,0.07036866
+cat__StreamingTV_No,0.06912297
+num__is_long_contract,0.066043824
+cat__OnlineBackup_No,0.061029058
+num__SeniorCitizen,0.05096867
+cat__OnlineSecurity_No,0.046892565
+cat__Dependents_No,0.038629416
+cat__TechSupport_No,0.03651072
+cat__PaymentMethod_Electronic check,0.030587595
+cat__gender_Female,0.0304881
+cat__PhoneService_No,0.029222554
+cat__InternetService_DSL,0.025025772
+cat__MultipleLines_Yes,0.022416336
+cat__PaperlessBilling_Yes,0.021862142
+cat__PaymentMethod_Mailed check,0.021601794
+num__service_count,0.021341456
+cat__PaymentMethod_Bank transfer (automatic),0.021263616
+cat__Dependents_Yes,0.016104165
+cat__Partner_No,0.015772715
+cat__tenure_bucket_long_term,0.01302744
+cat__PaymentMethod_Credit card (automatic),0.012291945
+cat__OnlineBackup_Yes,0.010912678
+cat__DeviceProtection_No,0.009887813
+cat__OnlineSecurity_Yes,0.008725672
+cat__StreamingMovies_Yes,0.00871211
+cat__StreamingTV_Yes,0.008627826
+cat__TechSupport_Yes,0.008118684
+cat__tenure_bucket_new,0.0074451235
+cat__tenure_bucket_mid_term,0.007041487
+cat__PhoneService_Yes,0.004924184
+cat__tenure_bucket_loyal,0.004914565
+cat__DeviceProtection_Yes,0.004770658
+cat__gender_Male,0.004594948
+cat__Partner_Yes,0.0045912494
+cat__MultipleLines_No phone service,0.0040297527
+num__high_monthly_charges,0.0023234072
+cat__Contract_Month-to-month,0.0
