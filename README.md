@@ -1,17 +1,36 @@
-## Project Overview
+# Telco Customer Churn Prediction
 
-This project builds an end-to-end customer churn prediction pipeline using the IBM Telco Customer Churn dataset. The main objective is to identify customers who are most likely to leave and translate those predictions into retention-focused business insights. This project is designed to demonstrate practical machine learning skills including data cleaning, preprocessing, feature engineering, model evaluation, and business interpretation.
+## Problem Statement
 
-## Dataset
+Customer churn directly affects recurring revenue and customer lifetime value in telecom businesses. The goal of this project is to predict which customers are most likely to leave, explain the drivers behind churn risk, and translate those predictions into practical retention actions.
 
-The dataset used in this project is the IBM Telco Customer Churn dataset. Each row represents a telecom customer, and the columns include demographic information, subscribed services, billing details, contract type, payment method, and the target variable `Churn`. This dataset is well suited for a supervised classification problem because it contains a realistic mix of numerical and categorical features along with a business-relevant prediction target.
+This project uses the IBM Telco Customer Churn dataset to build an end-to-end machine learning pipeline for churn prediction, model interpretation, and business-oriented retention analysis.
 
-## Preprocessing
+## Dataset Overview
 
-The preprocessing pipeline is designed to make the dataset clean, reproducible, and ready for machine learning. The raw data is first cleaned by fixing data types, converting numeric-like string columns into proper numeric format, and standardizing inconsistent service labels such as replacing `"No internet service"` with `"No"`. After cleaning, the data is split into train, validation, and test sets using stratified sampling so the churn class balance is preserved across all splits.
-For model-ready preprocessing, a `ColumnTransformer` is used to handle mixed feature types. Numerical columns are imputed using the mean, categorical columns are imputed using the most frequent value, categorical features are one-hot encoded, and scaling can be applied for linear models when needed. This setup makes the preprocessing pipeline reusable and reduces leakage risk by learning transformations only from the training data.
+The dataset used in this project is the IBM Telco Customer Churn dataset. Each row represents a telecom customer, and the columns include demographic information, subscribed services, billing details, contract type, payment method, and the target variable `Churn`.
 
-## Engineered Features
+This dataset is well suited for supervised classification because it contains a realistic mix of numerical and categorical features along with a business-relevant prediction target.
+
+## Project Approach
+
+The project was built as an end-to-end machine learning workflow:
+
+- Data cleaning and preprocessing
+- Feature engineering
+- Model training and comparison
+- Threshold tuning
+- Explainability with SHAP
+- Retention simulation
+- Streamlit app for single-customer scoring
+
+### Preprocessing
+
+The preprocessing pipeline is designed to make the dataset clean, reproducible, and ready for machine learning. The raw data is first cleaned by fixing data types, converting numeric-like string columns into proper numeric format, and standardizing inconsistent service labels such as replacing `"No internet service"` with `"No"`.
+
+After cleaning, the data is split into train, validation, and test sets using stratified sampling so the churn class balance is preserved across all splits. For model-ready preprocessing, a `ColumnTransformer` is used to handle mixed feature types. Numerical columns are imputed using the mean, categorical columns are imputed using the most frequent value, categorical features are one-hot encoded, and scaling can be applied for linear models when needed.
+
+### Engineered Features
 
 The following engineered features were created to better capture customer lifecycle, service adoption, contract risk, and billing behavior.
 
@@ -26,17 +45,25 @@ The following engineered features were created to better capture customer lifecy
 | `charges_per_tenure` | Numerical | Approximates billing intensity by dividing `TotalCharges` by `tenure + 1`. | Captures the relationship between billing history and customer age. |
 | `high_monthly_charges` | Binary | Flags customers whose monthly charges are above the dataset median. | Higher monthly charges can be associated with churn in telecom datasets. |
 
-## Model Evaluation
+## Modeling
 
-Three models were trained and compared on the processed data: Logistic Regression, Random Forest, and XGBoost. Each model was evaluated using precision, recall, F1 score, ROC-AUC, PR-AUC, and the confusion matrix so that performance could be interpreted in a way that is more useful for churn prediction than accuracy alone.
+Three models were trained and compared on the processed data:
 
-Because churn is the minority class, recall and precision-recall balance are especially important when deciding which customers to target for retention. XGBoost performed best overall after threshold tuning, giving the strongest balance between false positives and false negatives.
+- Logistic Regression
+- Random Forest
+- XGBoost
 
-## Threshold Analysis
+Each model was evaluated using precision, recall, F1 score, ROC-AUC, PR-AUC, and confusion matrices. Because churn is an imbalanced classification problem, recall and precision-recall balance were treated as more informative than accuracy alone.
+
+XGBoost was selected as the final model after threshold tuning because it provided the strongest balance between false positives and false negatives.
+
+## Results
+
+The final selected model for this project is XGBoost with a threshold of `0.4`. This threshold gave the best balance between identifying likely churners and limiting unnecessary retention outreach.
+
+### Threshold Analysis
 
 To better understand the tradeoff between false positives and false negatives, the XGBoost model was tested at multiple probability thresholds. Lower thresholds increased recall and reduced false negatives, while higher thresholds increased precision and reduced false positives.
-
-Based on validation results, a threshold of `0.4` produced the best overall balance for this project.
 
 | Threshold | False Positives | False Negatives | Precision | Recall | F1 |
 |---|---:|---:|---:|---:|---:|
@@ -45,25 +72,39 @@ Based on validation results, a threshold of `0.4` produced the best overall bala
 | 0.5 | 61 | 84 | 0.628 | 0.551 | 0.587 |
 | 0.6 | 26 | 112 | 0.743 | 0.401 | 0.521 |
 
-## Results
+Based on validation performance, threshold `0.4` was selected as the main operating point because it offered the best overall balance for the project.
 
-The final selected model for this project is XGBoost with a threshold of `0.4`. This setting gave the best balance between identifying likely churners and limiting unnecessary retention outreach.
+## Explainability
 
-A lower threshold would catch more churners but increase false alarms, while a higher threshold would reduce false alarms but miss more customers who are likely to leave. This threshold therefore provides a practical balance for retention-focused decision-making.
+SHAP analysis was used to identify the most important drivers of churn and make the model easier to interpret.
 
-## Top Churn Drivers
+### Top Churn Drivers
 
-SHAP analysis showed that the strongest drivers of churn were contract type, tenure, monthly charges, internet service type, and payment behavior. The most important feature by far was `is_month_to_month`, which suggests that customers on flexible contracts are much more likely to leave. Shorter tenure also increased churn risk, while higher monthly charges and fiber optic internet were associated with higher churn likelihood.
+The strongest churn drivers were contract type, tenure, monthly charges, internet service type, and payment behavior. The most important feature by far was `is_month_to_month`, which suggests that customers on flexible contracts are much more likely to leave.
 
-Other important drivers included `uses_electronic_check`, `charges_per_tenure`, and `has_security_support`. This suggests that billing preferences and support-related services also play an important role in retention.
+Shorter tenure also increased churn risk, while higher monthly charges and fiber optic internet were associated with higher churn likelihood. Other important drivers included `uses_electronic_check`, `charges_per_tenure`, and `has_security_support`, showing that billing preferences and support-related services also play an important role in retention.
 
 The SHAP summary plot shows which features have the greatest impact on churn predictions and whether high or low values of those features increase or decrease churn risk.
+
+## Business Insights
+
+This project highlights a few clear business patterns:
+
+- Customers on month-to-month contracts are the highest-risk retention segment.
+- Short-tenure customers are more likely to churn and may benefit from stronger onboarding and early engagement.
+- Higher monthly charges are associated with increased churn risk, suggesting that pricing and bundle strategy matter.
+- Electronic check usage and lower support-related engagement may indicate weaker retention behavior.
+- Churn prediction is most valuable when paired with threshold tuning and business cost assumptions rather than using a default 0.5 cutoff.
 
 ## Retention Simulation
 
 A simple retention simulation was used to estimate the business value of different decision thresholds. For each threshold, the analysis calculated how many customers would be contacted, the total campaign cost, the expected number of churners saved, the expected recovered value, and the resulting net value.
 
-The simulation showed that threshold `0.3` produced the highest expected net value, while threshold `0.4` offered a strong balance between expected profit and the number of customers targeted. Higher thresholds reduced outreach volume, but they also lowered the expected business impact.
+Assumptions used in the simulation:
+
+- Contact cost per customer = `$10`
+- Save rate = `25%`
+- Recovered value per saved churner = `$200`
 
 | Threshold | Customers Contacted | Campaign Cost | Expected Saved Customers | Expected Recovered Value | Net Value |
 |---|---:|---:|---:|---:|---:|
@@ -72,4 +113,28 @@ The simulation showed that threshold `0.3` produced the highest expected net val
 | 0.5 | 134 | 1340 | 21.75 | 4350.0 | 3010.0 |
 | 0.6 | 97 | 970 | 17.0 | 3400.0 | 2430.0 |
 
-For this project, threshold `0.4` was selected as the practical operating point because it still delivers strong expected value while reducing the number of customers contacted compared with the more aggressive `0.3` strategy. This makes it a more realistic tradeoff between retention impact and campaign workload.
+The simulation showed that threshold `0.3` produced the highest expected net value, while threshold `0.4` offered a strong balance between expected profit and the number of customers targeted. For this project, threshold `0.4` was selected as the more practical operating point because it still delivers strong expected value while reducing campaign workload.
+
+## App Demo
+
+A lightweight Streamlit app was built to score a single customer and display:
+
+- churn probability,
+- predicted churn class,
+- risk label,
+- top churn drivers,
+- suggested retention action.
+
+This app demonstrates how the trained model can be turned into a simple decision-support tool for business users.
+
+## Screenshots
+
+### Streamlit App
+![Streamlit app screenshot](images/app_screenshot.png)
+
+### SHAP Summary Plot
+![SHAP summary plot](reports/shap_summary_plot.png)
+
+### Feature Importance Plot
+![Feature importance plot](reports/xgboost_feature_importance.png)
+
