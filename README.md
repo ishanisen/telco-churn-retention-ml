@@ -50,3 +50,26 @@ Based on validation results, a threshold of `0.4` produced the best overall bala
 The final selected model for this project is XGBoost with a threshold of `0.4`. This setting gave the best balance between identifying likely churners and limiting unnecessary retention outreach.
 
 A lower threshold would catch more churners but increase false alarms, while a higher threshold would reduce false alarms but miss more customers who are likely to leave. This threshold therefore provides a practical balance for retention-focused decision-making.
+
+## Top Churn Drivers
+
+SHAP analysis showed that the strongest drivers of churn were contract type, tenure, monthly charges, internet service type, and payment behavior. The most important feature by far was `is_month_to_month`, which suggests that customers on flexible contracts are much more likely to leave. Shorter tenure also increased churn risk, while higher monthly charges and fiber optic internet were associated with higher churn likelihood.
+
+Other important drivers included `uses_electronic_check`, `charges_per_tenure`, and `has_security_support`. This suggests that billing preferences and support-related services also play an important role in retention.
+
+The SHAP summary plot shows which features have the greatest impact on churn predictions and whether high or low values of those features increase or decrease churn risk.
+
+## Retention Simulation
+
+A simple retention simulation was used to estimate the business value of different decision thresholds. For each threshold, the analysis calculated how many customers would be contacted, the total campaign cost, the expected number of churners saved, the expected recovered value, and the resulting net value.
+
+The simulation showed that threshold `0.3` produced the highest expected net value, while threshold `0.4` offered a strong balance between expected profit and the number of customers targeted. Higher thresholds reduced outreach volume, but they also lowered the expected business impact.
+
+| Threshold | Customers Contacted | Campaign Cost | Expected Saved Customers | Expected Recovered Value | Net Value |
+|---|---:|---:|---:|---:|---:|
+| 0.3 | 259 | 2590 | 36.5 | 7300.0 | 4710.0 |
+| 0.4 | 191 | 1910 | 28.75 | 5750.0 | 3840.0 |
+| 0.5 | 134 | 1340 | 21.75 | 4350.0 | 3010.0 |
+| 0.6 | 97 | 970 | 17.0 | 3400.0 | 2430.0 |
+
+For this project, threshold `0.4` was selected as the practical operating point because it still delivers strong expected value while reducing the number of customers contacted compared with the more aggressive `0.3` strategy. This makes it a more realistic tradeoff between retention impact and campaign workload.

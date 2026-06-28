@@ -1,0 +1,5 @@
+model,threshold,tp,fp,fn,tn,customers_contacted,campaign_cost,expected_saved_customers,expected_recovered_value,net_value
+XGBoost,0.3,146,113,41,405,259,2590,36.5,7300.0,4710.0
+XGBoost,0.4,115,76,72,442,191,1910,28.75,5750.0,3840.0
+XGBoost,0.5,87,47,100,471,134,1340,21.75,4350.0,3010.0
+XGBoost,0.6,68,29,119,489,97,970,17.0,3400.0,2430.0
